@@ -1,0 +1,57 @@
+{
+  "name": "twiz-client",
+  "version": "0.0.4",
+  "description":"Browser part of 3-leg OAuth 1.0a Twitter authentication",
+  "main": "src/twiz-client.js",
+  "dependencies": {
+    "twiz-client-accesstoken": "https://github.com/gits2501/twiz-client-accesstoken.git",
+    "twiz-client-redirect": "https://github.com/gits2501/twiz-client-redirect.git",
+    "twiz-client-request": "https://github.com/gits2501/twiz-client-request.git",
+    "twiz-client-requesttoken": "https://github.com/gits2501/twiz-client-requesttoken.git"
+  },
+  "devDependencies": {
+    "browserify": "^16.2.0",
+    "coveralls": "^3.0.0",
+    "eslint": "^4.19.1",
+    "istanbul": "^0.4.5",
+    "mocha": "^5.1.1",
+    "mocha-headless-chrome": "^2.0.0"
+  },
+  "scripts": {
+
+    "build": "browserify ./src/twiz-client.js --exclude btoa > ./src/twiz-client_bundle.js",
+    "watch": "watchify ./src/twiz-client.js --exclude btoa -o ./src/twiz-client_bundle.js --debug -v",
+    "start": "npm run build && npm run watch",
+
+    "lint": "eslint src/twiz-client.js",
+    "instrument": "istanbul instrument src/twiz-client.js --output src/twiz-client_instrumented.js",
+    "browserify": "./node_modules/browserify/bin/cmd.js test/tc.js -o test/tc_bundle.js",
+    "mocha-headless": "mocha-headless-chrome -a no-sandbox -f 'mocha-test.html?data=user%3D19&oauth_token=longAlphaNum1&oauth_verifier=longAplhaNum2' -c test/coverage.json",
+    "server": "node test/server.js &",
+
+    "report": "istanbul report --root test/ lcov",
+    "coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
+    "test": "npm run server && npm run instrument && npm run browserify && npm run mocha-headless && npm run report"
+  },
+  "keywords": [
+    "authentication",
+    "twitter",
+    "OAuth 1.0a",
+    "authorize",
+    "authenticate",
+    "3 leg"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gits2501/twiz-client.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gits2501/twiz-client/issues"
+  },
+  "author": {
+    "name": "gits2501",
+    "url": "https://github.com/gits2501",
+    "email": "canidomath@yahoo.com"
+  },
+  "license": "MIT"
+}
