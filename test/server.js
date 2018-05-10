@@ -38,8 +38,14 @@ var server = http.createServer(function(req,res){  // server mock
      req.on('end', function(){
          if(path)
          switch(path){                                  // mirror back data from request (path convert to type)
-            case  'request_token':                                
-              send(res, mockRequestTokenData,"content-type", "application/json"); //  
+            case  'request_token':
+              if(url_.query.stream === 'chunked') {
+                chunkedStream(res);
+                return;                 
+              }
+    
+              if(!url_.query.stream) send(res, mockRequestTokenData,"content-type", "application/json"); // 
+              else stream(res); 
             break;
             case  'request_token_error':              // path that trigger error response simulation           
               res.statusCode = '403'                  // consult twitte response code page for sementics of 403
@@ -49,8 +55,9 @@ var server = http.createServer(function(req,res){  // server mock
               send(res, twitterApiData ,"content-type", "application/json"); //  
             break;
             case  'access_token':                    // there is no mockAccessTokenData since access_token is 
-                                                     // never send to a browser
+                                                    // never send to a browser
               send(res, twitterApiData ,"content-type", "application/json"); //  
+              
             break;
             case  'access_token_error':              // path that trigger error response simulation           
               res.statusCode = '403'                  // consult twitte response code page for sementics of 403
@@ -96,4 +103,30 @@ function send(res, data , headerName, headerValue){
    res.end(data, 'utf-8')
 }
 
+function stream(res){                          // node by default uses streaming 
+   var data = 'cat moves tail'
+   res.setHeader('content-type','text/plain')
+   res.write(data);
+   res.end();
+}
+
+function chunkedStream(res){
+   var data = [
+       'cat',
+       'moves',
+       'tail'
+   ]
+
+   res.writeHeader('200', {
+      'content-type': 'text/plain',
+      'tranfer-encoding': 'chunked'
+   });
+   
+          res.write('cat ') 
+          res.write('moves');
+          res.write(' tail') 
+          setTimeout(function(){res.end()}, 10);
+
+   
+}
 server.listen(process.env.PORT || 5001);

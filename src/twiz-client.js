@@ -44,10 +44,10 @@
             
             this.OAuthParams('remove', this.oauth, this.legParams); // remove oauth leg params
             this.OAuthParams('add',  this.oauth, this.apiCall);     // add params for api call
-         
-            if(this.UserOptions.params)               
+            /* istanbul ignore else */ 
+            if(this.UserOptions.params){               
               this.oauth = this.OAuthParams('add', this.UserOptions.params, this.oauth);
-            
+            }
 
             this.addQueryParams(this.phases.api.toString(), this.UserOptions); // adding user params as url para
 
@@ -63,24 +63,23 @@
    
       OAuthLegBuilder.prototype = Object.create(leg_.prototype);       // link prototype of any oauth leg
   
-      OAuthLegBuilder.prototype.OAuthLegPlus = function(args, resolve){ // add query params for each phase
+      OAuthLegBuilder.prototype.OAuthLegPlus = function(args, resolve, reject){ // add query params for each phase
 
-         this.phases.leg(args);              // standard oauth leg parameters added as url params
-         this.phases.api();                  // add parameters for api call (call after 3-leg dance) as url para
-         if(this.phases.other) this.phases.other();     // add any other parameters as url params
+         this.reject = reject                 // make reference to reject for async functions that trow errors
+
+         this.phases.leg(args);               // standard oauth leg parameters added as url params
+         this.phases.api();                   // add parameters for api call (call after 3-leg dance) as url para
+         /* istanbul ignore else */
+         if(this.phases.other){ this.phases.other();}     // add any other parameters as url params
          
-         //console.log('leg ', this.name)
-         // console.log('this.phases: ', this.phases);
          this.send(this.options, this.callback.bind(this, resolve)); // send request to server
       }
 
       OAuthLegBuilder.prototype.send = function (options, cb){     // was (vault, resolve, leg) 
-        // console.log('request SENT +')
        
-        options.callback = cb // sets callback function
-        
-       // console.log("OPTIONS ->", options);
- 
+         options.callback = cb           // sets callback function
+         options.reject   = this.reject; // for promise (async) aware error throwing
+
          request(options);  
       }
   
@@ -89,7 +88,7 @@
 
    function twizClient (){   
      
-     this.haste = function(args){ // Brings data immediately ( when access token is present on server), or
+     this.OAuth = function(args){ // Brings data immediately ( when access token is present on server), or
                                   // brings request token (when no access token is present on server) and redirects
          if(Promise)
            return this.promised(args, this.RequestTokenLeg())  // promisify request_token step (leg)
@@ -98,7 +97,7 @@
      }
 
      
-     this.flow = function(args){ // Authorizes redirection and continues OAuth flow (all 3 legs are hit) 
+     this.finishOAuth = function(args){ // Authorizes redirection and continues OAuth flow (all 3 legs are hit) 
          if(Promise)
            return this.promised(args, this.AccessTokenLeg());  // promisify access token step
 
@@ -106,8 +105,8 @@
      }
 
      this.promised = function(args, leg){                        // Promisifies the OAuth leg requests
-         return new Promise(function (resolve){          // return promise
-                    leg.OAuthLegPlus(args, resolve);             // launch request
+         return new Promise(function (resolve, reject){          // return promise
+                    leg.OAuthLegPlus(args, resolve, reject);     // launch request
          });
 
      }
@@ -122,10 +121,8 @@
         
         var requestTokenLeg = buildOAuthLeg(RequestToken);
 
-        requestTokenLeg.phases.other = function setVerifyCredentials(){ // sets one more phase for request token
+        requestTokenLeg.phases.other = function setVerifyCredentials(){ // Sets one more phase for request token
                                                                         // leg. Adds access token verification 
-             
-          // console.log('in setVErifyCredentials')
            var credentialOptions = {                    // verify credential(access token) options
               options:{ 
                  path: 'account/verify_credentials.json',
@@ -147,15 +144,16 @@
         }.bind(requestTokenLeg)
         
 
-        requestTokenLeg.callback = function(resolve, error, sentData){  // afther request token, redirect
+        requestTokenLeg.callback = function(resolve, res){  // afther request token leg , redirect
              
-            var authorize = new Redirect({                     // make redirect instance
-               newWindow:      this.newWindow,                 // pass newWindow specs
+            var authorize = new Redirect({                      // make redirect instance
+               newWindow:      this.newWindow,                  // pass newWindow specs
                redirectionUrl: this.absoluteUrls[this.leg[1]], 
-               callback_func:  this.callback_func              // callback function user supplied 
+               callback_func:  this.callback_func,              // callback function user supplied 
+               reject:         this.reject                      // for  promise (async) awere error throwing  
             })
 
-            authorize.redirection(resolve, error, sentData);   
+            authorize.redirection(resolve, res);   
         }
  
         return requestTokenLeg;       
@@ -164,18 +162,14 @@
      this.AccessTokenLeg = function(){                     // create and define access token leg
 
         var accessTokenLeg = buildOAuthLeg(AccessToken);   
-        accessTokenLeg.specificAction = function(){        // specific actionto this leg is authorizing tokens
+        accessTokenLeg.specificAction = function(){        // specific actiont this leg is authorizing tokens
 
            this.setAuthorizedTokens();
         }
   
-        accessTokenLeg.callback = function(resolve, error, sentData){ // delivers error or data to user
+        accessTokenLeg.callback = function(resolve, res){ // delivers 'res'-ponce object with error or data 
         
-           //if(error) console.log('after access_token (error):', error)
-           //else console.log('after access_token (data):', sentData);
-
-           this.deliverData(resolve, { 'error': error, 'data': sentData });    // delivers to user     
-
+           this.deliverData(resolve, res);    // delivers to user     
         }
 
         return  accessTokenLeg;
@@ -187,9 +181,9 @@
    function twiz(){
       var r = new twizClient(); 
       
-      var head = {
-         haste :         r.haste.bind(r),
-         flow:           r.flow.bind(r),
+      var head = {                           // none of the 'this' references in 'r' are exposed to outside code
+         OAuth :         r.OAuth.bind(r),
+         finishOAuth:    r.finishOAuth.bind(r),
          getSessionData: r.getSessionData.bind(r)
       }
       
@@ -198,7 +192,6 @@
    
   if(typeof window === 'object' && window !== 'null') window.twizClient = twiz 
   else if(typeof module ==='object' && module !== 'null') module.exports = twiz;
-//  console.log('module.exports: ', module.exports);
 
 })();  
 

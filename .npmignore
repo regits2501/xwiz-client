@@ -1,0 +1,11 @@
+*.s*
+*.vim
+*instrumented.js
+.nyc_output/
+dependencies/
+coverage/
+test/tc_bundle.js
+*coverage*
+*.REF
+*tmp-browserify*
+*.tgz

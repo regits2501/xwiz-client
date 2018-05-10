@@ -7,44 +7,50 @@ var twizlent = twizClient();
 var serverUrl = 'http://localhost:5001/request_token';  // mock server address
 var serverUrl2 = 'http://localhost:5001/access_token';
 
-var args = {      
-  "server_url": serverUrl,
-  "redirection_url":"test/redirectionPage.html",
+var args; 
+
+beforeEach(function(){
+  args = {      
+    "server_url": serverUrl,
+    "redirection_url":"test/redirectionPage.html",
      
-  "session_data": {                                    // redirection data
-     'quote':  'Train yourself to let go everthing you fear to lose', 
-     'author': 'Yoda', 
-     'id': 209
-   }, 
+    "session_data": {                                    // redirection data
+       'quote':  'Train yourself to let go everthing you fear to lose', 
+       'author': 'Yoda', 
+       'id': 209
+    }, 
                                      
-   'new_window':{                                      // new tab / popup options
+    'new_window':{                                      // new tab / popup options
       'name': 'nw',
       'features':'resizable=yes,height=613,width=400,left=400,top=300'
-   },  
-   'options':{ 
+    },  
+    'options':{ 
       'method': 'POST',               // GET
       'path': 'statuses/update.json', // users/search.json
       'params':{
          status: '“Train yourself to let go of everything you fear to lose.” ~ Yoda'
       }
-   },
-   'urls':{
-      authorize: 'https://api.twitter.com/oauth/authenticate'
-   } 
-}
+    },
+    'endpoints':{
+      authorize: 'authenticate'
+    } 
+  }
+})
 
 
 
 describe('twiz-client', function(){
- describe('haste', function(){
+ describe('OAuth', function(){
  
     describe('Success', function(){                        // test succesful cases
-      it('gets request token', function(done){
+      it('gets request token (redirects)', function(done){
 
-        twizlent.haste(args)
-        .then(function(o){
+        twizlent.OAuth(args)
+        .then(function(o){ 
             assert.ok(!o.data, 'must not have any data when redirecting');
-            assert.ok(!o.error, 'must not have eny error set when redirection') 
+            assert.ok(!o.error,'must not have eny error set when redirecting');
+            assert.ok(o.xhr, 'must have xhr (request/response) reference');
+            
             if(o.window){                                  // check reference to opened new tab/ popup
               assert.ok(typeof o.window === 'object');
               done();
@@ -55,11 +61,13 @@ describe('twiz-client', function(){
       it('gets api data', function(done){
          args.server_url = serverUrl + '_api_data';         // set path that will simulate api data response
                     
-         twizlent.haste(args)
+         twizlent.OAuth(args)
          .then(function(o){
            
-            assert.ok(!o.error, 'must not have eny error set when redirection');
-            assert.ok(!o.window, 'redirection must not happen');
+            assert.ok(!o.error, 'must not have eny error set on api data');
+            assert.ok(!o.window,'must not have window reference on api data');
+            assert.ok(!o.redirection, 'must not have redirection indication on api data');
+            assert.ok(o.xhr, 'must have xhr (request/response) reference');
 
             if(o.data){ 
                assert.ok(typeof o.data === 'object');
@@ -68,6 +76,61 @@ describe('twiz-client', function(){
              
          })
       })   
+                                   // test streaming from OAuth(..) - request token step      
+      
+      it('stream', function(done){
+         var responseData = 'cat moves tail';               // sever will send this data
+         args.stream = true;                              // initiate stream behaviour
+         args.options.beforeSend = function(xhr){  
+
+              xhr.onprogress = function(){                     // define chunk by chunk handler
+                 assert.equal(xhr.responseText, responseData); // check sent data
+                 
+              }
+         }
+
+         twizlent.OAuth(args)
+         .then(function(o){  
+                                         
+              assert.equal(o.data, responseData);           // check sent data
+              done();           
+         }, function rejected(err){
+            console.log('err in PROMISE: ', err)
+         })       
+     
+      })
+    
+       // test chunk by chunk stream 
+       
+
+      it('chunk by chunk', function(done){
+         var responseData = 'cat moves tail';
+         
+         args.stream = 'chunked';            // only to make test sever hit the right streaming functio
+                                             // value should be 'true'
+         args.options.chunked = true;
+         args.options.beforeSend = function(xhr){
+                 var begin;
+                 var end;
+                 xhr.onprogress = function(){
+                     end = xhr.responseText.length;                    
+                     var data = xhr.responseText.slice(begin, end)
+                     assert.equal(data, responseData);
+ 
+                     
+                 }
+            
+         }
+  
+         twizlent.OAuth(args)
+         .then(function fullfiled(o){
+                     // must not be called
+         }, function rejected(err){ 
+             assert.ok(err.name === 'chunkedResponseWarning')
+             done();
+         }) 
+      })
+       
 
     })
 
@@ -76,11 +139,13 @@ describe('twiz-client', function(){
 
          args.server_url = serverUrl + '_error';           // set path that will simulate error response
 
-         twizlent.haste(args)
+         twizlent.OAuth(args)
          .then(function(o){
             assert.ok(!o.data, 'must not have any data when error happens');
-            assert.ok(!o.window,' redirection must not happen'); // should not get any reference to opened window
- 
+            assert.ok(!o.window,'must not have any window referenece when error happens');
+            assert.ok(!o.redirection, 'must not have redirection indication when error happens');
+            assert.ok(o.xhr, 'must have xhr (request/response) reference');
+                                                                                  
             if(o.error){
                assert.ok(typeof o.error === 'object') 
                done()
@@ -90,15 +155,17 @@ describe('twiz-client', function(){
     })
  })
 
-  describe('flow (oauth flow)', function(){                 // test the access token step and data retreval
+  describe('finishOAuth (oauth flow)', function(){          // test the access token step and data retreval
      describe('Success', function(){              
  
-      it('gets api data', function(done){
+     it('gets api data', function(done){
          args.server_url = serverUrl2                       // set path that will simulate api data response
-         twizlent.flow(args)
+         twizlent.finishOAuth(args)
          .then(function(o){
-           
-            assert.ok(!o.error, 'must not have eny error set when data is present');
+            assert.ok(!o.error, 'must not have eny error set when api data is present');
+            assert.ok(!o.window,'must not have any window referenece on api data');
+            assert.ok(!o.redirection, 'must not have redirection indication on api data');
+            assert.ok(o.xhr, 'must have xhr (request/response) reference');
 
             if(o.data){ 
                assert.ok(typeof o.data === 'object');       // we have data
@@ -107,7 +174,57 @@ describe('twiz-client', function(){
              
          })
       })   
+  
+      it('stream', function(done){                           // test stream consuming in xhr.onprogress()
 
+         window.localStorage.requestToken_ = 'longAlphaNum1' // make request fresh, so we dont get 'noRepeat' error 
+         var responseData = 'cat moves tail';               // sever will send this data
+         args.stream = 'true';                              // initiate stream behaviour
+         args.options.beforeSend = function(xhr){  
+
+              xhr.onprogress = function(){                  // define chunk by chunk handler
+                 assert.equal(xhr.responseText, responseData); // check sent data
+                 
+              }
+         }
+
+         twizlent.finishOAuth(args)
+         .then(function(o){
+              assert.equal(o.data, responseData);              // check sent data
+              done();           
+         }, function rejected(err){
+           // console.log('err in PROMISE: ', err)
+         })       
+     
+      })
+
+      it('chunk by chunk', function(done){                   // test chunk by chunk stream consuming in onprogress(..)
+         window.localStorage.requestToken_ = 'longAlphaNum1' // make request fresh, so we dont get 'noRepeat' error 
+         var responseData = 'cat moves tail';
+         
+         args.stream = 'chunked';            // only to make test sever hit the right streaming functio
+                                             // value should be 'true'
+
+         args.options.chunked = true;
+         args.options.beforeSend = function(xhr){
+            var begin;
+            var end;
+            xhr.onprogress = function(){
+               end = xhr.responseText.length;                    
+               var data = xhr.responseText.slice(begin, end);
+                     assert.equal(data, responseData);
+             }
+            
+         }
+         
+         twizlent.finishOAuth(args)      // make request
+         .then(function fullfiled(o){
+                     // must not be called
+         }, function rejected(err){
+             assert.ok(err.name === 'chunkedResponseWarning')
+             done();
+         }) 
+      })
     })
 
     describe('Failure', function(){
@@ -115,11 +232,14 @@ describe('twiz-client', function(){
 
          args.server_url = serverUrl + '_error';             // set path that will simulate error response
          window.localStorage.requestToken_ = 'longAlphaNum1' // set again request token since it was set to null
-                                                             // in previous call of flow()
-         twizlent.flow(args)
+                                                             // in previous call of finishOAuth()
+         twizlent.finishOAuth(args)
          .then(function(o){
             assert.ok(!o.data, 'must not have any data when error happens');
-           
+            assert.ok(!o.window,'must not have any window referenece when error happens');
+            assert.ok(!o.redirection, 'must not have redirection indication when error happens');
+            assert.ok(o.xhr, 'must have xhr (request/response) reference');
+
             if(o.error){
                assert.ok(typeof o.error === 'object')         // has error object
                done()
