@@ -24,7 +24,7 @@ _**browser:**_
      ...
      ...
      stream: true , // Indicate that you want to use 'your own' Stream and/or REST libs 
-     options : {              // twitter request options
+     options : {              // X request options
         path:   'media/upload',
         method: 'POST',
         params: {
@@ -63,7 +63,7 @@ _**node.js:**_
        verifyCredentials(accessToken, {skip_status: true})              
        .then(function fullfiled(credentials){
             if(twiz.stream){                          // Check that user indicated stream
-               app.options     = twiz.twitterOptions; // Twitter request options as in the args.options on client
+               app.options     = twiz.twitterOptions; // X request options as in the args.options on client
                app.accessToken = accessToken;         // save access token to app (just as an example)     
                twiz.next()                            // Jump to next middleware, here it's 'myStream(..)'                                 
             }
@@ -79,7 +79,7 @@ _**node.js:**_
        .then(function fullfiled(accessToken){
          
            if(twiz.stream){
-              app.options     = twiz.twitterOptions; // Save twitter request options
+              app.options     = twiz.twitterOptions; // Save X request options
               app.accessToken = accessToken;         // Save access token
               twiz.next()                            // Jump to next middleware, here it is 'myStream(..)'
            }            
@@ -171,7 +171,7 @@ By setting `chunked` you dont have to worry about sending `content-type`, it wil
 
 There is an interesting capability provided by the [OAuth 1.0a](https://oauth.net/core/1.0a/) spec section `6.2.3`. "The callback URL `MAY` include Consumer provided query parameters. The Service Provider `MUST` retain them unmodified and append the `OAuth` parameters to the existing query".
 
- This relates to `OAuth` step 2. When we redirect user to twitter for obtaining `authorization` we are *sending* a `callback url` (I've called it `redirection_url`) along with `request token` (not shown in diagrams), which twitter uses to (re)direct user back to app when authorization is done. In that url we can piggy-back arbitrary data as query params, to twitter and back to app. Then, when we are (re)directed back to app, we can take back that data. The result is that we have a simple mechanism that allows our data to survive redirections, that is changing window contexts in browser. Which is handy in cases when we have the `SPA` workflow and everthing happens in one window tab, so data we send from our app's window context can *survive* changing that context to the context of twitter's window on which `authorization` happens and then again finally our apps' window context.
+ This relates to `OAuth` step 2. When we redirect user to X for obtaining `authorization` we are *sending* a `callback url` (I've called it `redirection_url`) along with `request token` (not shown in diagrams), which X uses to (re)direct user back to app when authorization is done. In that url we can piggy-back arbitrary data as query params to X and back to app. Then, when we are (re)directed back to app, we can take back that data. The result is that we have a simple mechanism that allows our data to survive redirections, that is changing window contexts in browser. Which is handy in cases when we have the `SPA` workflow and everthing happens in one window tab, so data we send from our app's window context can *survive* changing that context to the context of X's window on which `authorization` happens and then again finally our apps' window context.
 
  This can also be used for web site workflows, but you'le get the `o.window` reference in that case which also can be used for exact same thing. This mechanism comes in hand when you are in a place like [github pages](https://pages.github.com/) and don't have access to a database there and/or your are not currently interested in puting a database solution on a server. Here is how you can use it:
 
@@ -191,17 +191,18 @@ _**browser:**_
            background_noise: 'cicada low frequency',
            intentions: 'lawfull good'
         }                                            
-        new_window: {
+        new_window: {                                   // 
            name: 'myPopUpWindow',
            features: 'resizable=yes,height=613,width=400,left=400,top=300'
         },
 
-        options: {                                         //  twitter request options  
+        options: {                                         //  X request options  
            method: 'POST',
-           path:   'statuses/update.json'
-           params: {
-             status: "Hooray, new tweet!"
-           }
+           path:   '/2/tweets',
+           body: {
+             text: "Hooray, new tweet!"
+           },
+           encoding: 'json'
         }
      }
      
@@ -239,7 +240,7 @@ _**node.js:**_
 
      found                        
      .then(function(accessToken){
-         // user's access token received from twitter which you can put in database
+         // user's access token received from X which you can put in database
          
      }, function rejected(err){   // twiz errors
 
@@ -253,7 +254,7 @@ _**node.js:**_
 ```
 
 When we get the `access token` in our promise then twiz gets api data and calls your `onEnd(..)` callback with that data and response stream.
-So we've sent the rendered html with `user.name` from data we got from  twitter's `statuses/update.json`
+So we've sent the rendered html with `user.name` from data we got from  X's `/2/tweets`
 api. When you are specifying the `onEnd(..)` function then it must end the response or else the request will hang. 
 
 Also if your workflow requires front-end template rendering. You can instead of `res.render(..)` use :
@@ -274,12 +275,15 @@ _**browser:**_
      let args = {
         ...
         ...
-        options:{                                         //  twitter request options  
+        options:{                                         //  X request options  
            method: 'POST',
-           path:   'statuses/update.json'
-           params: {
-             status: "Hooray, new tweet!"
+           path:   '/2/tweets'
+
+           body: {
+             text: "Hooray, new tweet!"
            },
+           encoding:'json',
+           
            beforeSend: function(xhr){
               // xhr.open(..) is called for you, dont do it
        

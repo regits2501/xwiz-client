@@ -1,0 +1,2 @@
+# twiz-client-options [![Build Status](https://travis-ci.org/gits2501/twiz-client-options.svg?branch=master)](https://travis-ci.org/gits2501/twiz-client-options) [![Coverage Status](https://coveralls.io/repos/github/gits2501/twiz-client-options/badge.svg?branch=master)](https://coveralls.io/github/gits2501/twiz-client-options?branch=master)
+Prepares http request options used in Twitter's 3-leg OAuth 1.0a authentication.  

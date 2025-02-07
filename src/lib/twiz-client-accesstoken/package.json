@@ -1,0 +1,36 @@
+{
+  "name": "twiz-client-accesstoken",
+  "version": "1.0.0",
+  "description": "Access Token leg of OAuth 1.0 a for twiz-client",
+  "main": "src/AccessToken.js",
+  "scripts": {
+    "lint": "eslint src/AccessToken.js",
+    "instrument": "istanbul instrument src/AccessToken.js --output src/AccessToken_instrumented.js",
+    "browserify": "./node_modules/browserify/bin/cmd.js test/accesstoken.js --exclude btoa -o test/accesstoken_bundle.js",
+    "mocha-headless": "mocha-headless-chrome -a no-sandbox -f mocha-test.html -c test/coverage.json",
+    "report": "istanbul report --root test/ lcov",
+    "coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
+    "test": "npm run instrument && npm run browserify && npm run mocha-headless && npm run report"
+  },
+  "author": "github.com/gits2501",
+  "license": "MIT",
+  "dependencies": {
+    "twiz-client-oauth": "https://github.com/gits2501/twiz-client-oauth",
+    "twiz-client-redirect": "https://github.com/gits2501/twiz-client-redirect"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gits2501/twiz-client-accesstoken.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gits2501/twiz-client-accesstoken/issues"
+  },
+  "devDependencies": {
+    "browserify": "^16.2.2",
+    "coveralls": "^3.0.2",
+    "eslint": "^4.19.1",
+    "istanbul": "^0.4.5",
+    "mocha": "^5.2.0",
+    "mocha-headless-chrome": "^2.0.1"
+  }
+}
