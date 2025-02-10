@@ -1,7 +1,7 @@
-import AccessToken from './lib/twiz-client-accesstoken/src/AccessToken.js';
-import Redirect from './lib/twiz-client-redirect/src/Redirect.js';
-import RequestToken from './lib/twiz-client-requesttoken/src/RequestToken.js';
-import request from './lib/twiz-client-request/src/request.js';
+import AccessToken from './lib/AccessToken/src/AccessToken.js';
+import Redirect from './lib/Redirect/src/Redirect.js';
+import RequestToken from './lib/RequestToken/src/RequestToken.js';
+import request from './lib/Request/src/request.js';
 
 
 
@@ -78,7 +78,7 @@ function buildOAuthLeg(leg_) {
          this.send(this.options, this.callback.bind(this, resolve)); // send request to server
       }
 
-      // send request to twiz-server with provided options
+      // send request to xwiz-server with provided options
       send(options, cb) {
 
          options.callback = cb; // sets callback function
@@ -91,8 +91,8 @@ function buildOAuthLeg(leg_) {
    return new OAuthLegBuilder();
 }
 
-// define twiz OAuth steps
-class TwizOAuth {
+// define xwiz OAuth steps
+class XwizClient {
    constructor() {
 
       /*
@@ -196,17 +196,17 @@ class TwizOAuth {
    }
 }
 
-function twizClient() {
+function xwizClient() {
    
-   let twiz= new TwizOAuth();
+   let xwiz= new XwizClient();
 
-   const head = {  // none of the 'this' references in 'twiz' are exposed to outside code
-      OAuth: twiz.OAuth.bind(twiz),
-      finishOAuth: twiz.finishOAuth.bind(twiz),
-      getSessionData: twiz.getSessionData.bind(twiz)
+   const head = {  // none of the 'this' references in 'xwiz' are exposed to outside code
+      OAuth: xwiz.OAuth.bind(xwiz),
+      finishOAuth: xwiz.finishOAuth.bind(xwiz),
+      getSessionData: xwiz.getSessionData.bind(xwiz)
    }
 
    return head;
 }
 
-export default twizClient;
+export default xwizClient;

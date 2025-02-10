@@ -1,5 +1,5 @@
-import Options from '../../twiz-client-options/src/Options.js';
-import { percentEncode, formEncode } from '../../twiz-client-utils/src/utils.js';
+import Options from '../../Options/src/Options.js';
+import { percentEncode, formEncode } from '../../Utils/src/utils.js';
 const btoa = window.btoa  // use browser's btoa 
 
 /**

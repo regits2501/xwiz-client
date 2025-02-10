@@ -1,4 +1,4 @@
-import { CustomError, throwAsyncError } from '../../twiz-client-utils/src/utils.js';
+import { CustomError, throwAsyncError } from '../../Utils/src/utils.js';
 
 /**
  * Creates request for redirection, second leg in OAuth 1.0a (after request token step).

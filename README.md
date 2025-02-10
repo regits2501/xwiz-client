@@ -1,17 +1,17 @@
-# twiz 
+# xwiz 
 
 X OAuth wizard.
 
-Twiz does authentication and/or authorization to X with [OAuth 1.0a](https://oauth.net/core/1.0a/), has built in `REST` api support and also supports third party `STREAM` and `REST` libs.
+Xwiz does authentication and/or authorization to X with [OAuth 1.0a](https://oauth.net/core/1.0a/), has built in `REST` api support and also supports third party `STREAM` and `REST` libs.
 
-twiz-client  |  twiz-server
+xwiz-client  |  xwiz-server
 ------------ | ----------
-[![Build Status](https://travis-ci.org/gits2501/twiz-client.svg?branch=master)](https://travis-ci.org/gits2501/twiz-client) | [![Build Status](https://travis-ci.org/gits2501/twiz-server.svg?branch=master)](https://travis-ci.org/gits2501/twiz-server)
-[![Coverage Status](https://coveralls.io/repos/github/gits2501/twiz-client/badge.svg?branch=master)](https://coveralls.io/github/gits2501/twiz-client?branch=master)| [![Coverage Status](https://coveralls.io/repos/github/gits2501/twiz-server/badge.svg?branch=master)](https://coveralls.io/github/gits2501/twiz-server?branch=master) 
+[![Build Status](https://travis-ci.org/gits2501/xwiz-client.svg?branch=master)](https://travis-ci.org/gits2501/xwiz-client) | [![Build Status](https://travis-ci.org/gits2501/xwiz-server.svg?branch=master)](https://travis-ci.org/gits2501/xwiz-server)
+[![Coverage Status](https://coveralls.io/repos/github/gits2501/xwiz-client/badge.svg?branch=master)](https://coveralls.io/github/gits2501/xwiz-client?branch=master)| [![Coverage Status](https://coveralls.io/repos/github/gits2501/xwiz-server/badge.svg?branch=master)](https://coveralls.io/github/gits2501/xwiz-server?branch=master) 
 
-> `twiz-client` is a js script.
+> `xwiz-client` is a js script.
 
-> `twiz-server` is Express middleware.
+> `xwiz-server` is Express middleware.
 
 ### Contents
 * [Intro](#intro)
@@ -71,7 +71,7 @@ After we get user's `access token` the 3-leg OAuth is finished and we can use it
 
 We can see that in 3-rd leg `access token` is send back to web app. Which usually is not good idea, because of security implications it could have, like we mentioned earlier.
  
-Let's see what twiz is doing with OAuth:
+Let's see what xwiz is doing with OAuth:
 
 ![TwizHaste](/Pics/TwizHaste.png)
 
@@ -92,16 +92,16 @@ Three differences are:
      
      This is usefull for scenarios where you save user's `access token` after first authorization and then just check for it's freshness before you go for an api request. User does not need to be bothered every time with 3-leg `OAuth`, there is no interstitials page. With haste **you** are the one who *remembers* user authorization instead of letting X to do it (like it does on the `/oauth/authenticate`). All in order to have smooth user experience, like for instance in case `/oauth/authenticate` stops working as expected. Or when redirection page flashes for the moment before user is returned to app and you would like to remove that behaviour. 
      
-     If this is the first time a user is making a request (and we dont have the `access token`) then we just continue the whole `OAuth flow` (on diagram the *no* branch). One of twiz's features is very easy switching between any of your `OAuth` workflows while having a redundant mechanism for smooth user experience (`haste`) as an option.
+     If this is the first time a user is making a request (and we dont have the `access token`) then we just continue the whole `OAuth flow` (on diagram the *no* branch). One of xwiz's features is very easy switching between any of your `OAuth` workflows while having a redundant mechanism for smooth user experience (`haste`) as an option.
 
 
 ## Usage 
 
 ### [⬑](#contents)
 
-In order to efficiently and safely use twiz make sure you:
+In order to efficiently and safely use xwiz make sure you:
  1. **Provide HTTPS** all the way (client ---> server --> X)
- 2. In browser install `twiz-client`, on server install `twiz-server` 
+ 2. In browser install `xwiz-client`, on server install `xwiz-server` 
  3. Create [app account](https://apps.X.com/app/new) on X
  4. Users (of your app) must have X accounts 
 
@@ -110,20 +110,20 @@ in browser:
 
      
    
-    CDN:  <script src="https://cdn.jsdelivr.net/npm/twiz-client/src/twiz-client_bundle.min.js"></script>
+    CDN:  <script src="https://cdn.jsdelivr.net/npm/xwiz-client/src/xwiz-client_bundle.min.js"></script>
    
-    yarn:  yarn add twiz-client
+    yarn:  yarn add xwiz-client
 	 
     local:
 
-    npm install twiz-client && npm run build
+    npm install xwiz-client && npm run build
 
-    Then drop it in script tag:  <script src="src/twiz-client_bundle.js"></script>		 
+    Then drop it in script tag:  <script src="src/xwiz-client_bundle.js"></script>		 
 	 
 	 
 on server:  
 
-     npm install twiz-server
+     npm install xwiz-server
 
 ### SPA (singe page apps)
 _**browser:**_
@@ -150,11 +150,11 @@ btn.addListener('onClick', function(){                // lets say we initiate oa
   twizlent.OAuth(args)
   .then(function fulfilled(o){
       if(o.error)              // not 200OK responses (has o.error.statusCode, o.error.statusText, o.error.data)
-      if(o.data)               // (200OK) will have data on succesfull twiz.haste(accessToken) call on server
-      if(o.redirection)        // Will have an o.redirection set to *true* when twiz.continueOAuth() is called on                                     // server and user is redirected. Serves as a notifier for redirections.
+      if(o.data)               // (200OK) will have data on succesfull xwiz.haste(accessToken) call on server
+      if(o.redirection)        // Will have an o.redirection set to *true* when xwiz.continueOAuth() is called on                                     // server and user is redirected. Serves as a notifier for redirections.
       o.xhr                    // Always present in case you need to pull some data from response 
                                // (like custom server headers you might be sending)  
-  }, function rejected(err){ // twiz errors
+  }, function rejected(err){ // xwiz errors
      // err is instance of Error()
      // has err.name, err.message, err.stack ...
   })
@@ -173,7 +173,7 @@ twizlent.finishOAuth(args);
   
       o.xhr       // Always present in case you need to pull some data from response 
                   // (like custom server headers you might be sending)  
-   }, function rejected(err){  // twiz errors
+   }, function rejected(err){  // xwiz errors
         // err is instance of Error()
         // has err.name, err.message, err.stack ...
 }) 
@@ -182,7 +182,7 @@ twizlent.finishOAuth(args);
 Notice that our `redirection_url` is same as url of the page from which we are making a request. Making this a SPA use case.
 The only presumtions about a succesfull request is one with `200OK` status code, so anything that does not have that status code will still be in fulfilled handler but in `o.error`, left to your code logic.
 
-`twizlent.OAuth(..)` will bring api data (`o.data`) if `twiz.haste(accessToken)` was called on the server and had `200OK` response. If not and the `twiz.continueOAuth()` is called it will receive `request token` and redirect user to X. 
+`twizlent.OAuth(..)` will bring api data (`o.data`) if `xwiz.haste(accessToken)` was called on the server and had `200OK` response. If not and the `xwiz.continueOAuth()` is called it will receive `request token` and redirect user to X. 
 
 Then `o.redirection` is set to `true` in fullfuled handler. Also note that here everything (redirection to X, X's (re)direction back to app) happens in same window/tab in browser. Check [web site](#web-site) workflow for popUps.
 

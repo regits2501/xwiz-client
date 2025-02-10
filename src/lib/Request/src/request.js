@@ -2,7 +2,7 @@ import {
   CustomError,
   formEncode,
   throwAsyncError
- } from "../../twiz-client-utils/src/utils.js";
+ } from "../../Utils/src/utils.js";
 
 /**
  * Utility for creating network request with XHR

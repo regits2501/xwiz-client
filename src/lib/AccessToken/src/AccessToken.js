@@ -1,5 +1,5 @@
-import OAuth from '../../twiz-client-oauth/src/OAuth.js';
-import { throwAsyncError } from '../../twiz-client-utils/src/utils.js';
+import OAuth from '../../OAuth/src/OAuth.js';
+import { throwAsyncError } from '../../Utils/src/utils.js';
 
 /**
  * Creates Access Token OAuth leg

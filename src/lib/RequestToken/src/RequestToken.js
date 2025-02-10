@@ -1,4 +1,4 @@
-import OAuth from '../../twiz-client-oauth/src/OAuth.js';
+import OAuth from '../../OAuth/src/OAuth.js';
 /**
  * Creates first OAuth leg 
 */

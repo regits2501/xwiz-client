@@ -1,15 +1,11 @@
 {
-  "name": "twiz-client",
+  "name": "xwiz-client",
   "version": "1.0.0-beta.2",
   "description": "Twitter OAuth 1.0a library, gets you an access token , supports REST and STREAM apis (browser part)",
-  "main": "src/twiz-client_bundle.js",
+  "main": "src/xwiz-client_bundle.js",
   "dependencies": {
     "esbuild": "^0.24.2",
-    "esmify": "^2.1.1",
-    "twiz-client-accesstoken": "https://github.com/gits2501/twiz-client-accesstoken",
-    "twiz-client-redirect": "https://github.com/gits2501/twiz-client-redirect",
-    "twiz-client-request": "https://github.com/gits2501/twiz-client-request",
-    "twiz-client-requesttoken": "https://github.com/gits2501/twiz-client-requesttoken"
+    "esmify": "^2.1.1"
   },
   "devDependencies": {
     "coveralls": "^3.0.0",
@@ -21,16 +17,16 @@
     "uglify-js": "^3.4.4"
   },
   "scripts": {
-    "build": "esbuild src/twiz-client.js --bundle --format='esm' --outfile='src/twiz-client_bundle.js'",
-    "watch": "esbuild src/twiz-client.js --bundle --format='esm' --outfile='src/twiz-client_bundle.js' --watch",
-    "lint": "eslint src/twiz-client.js",
-    "instrument": "istanbul instrument src/twiz-client.js --output src/twiz-client_instrumented.js",
+    "build": "esbuild src/xwiz-client.js --bundle --format='esm' --outfile='src/xwiz-client_bundle.js'",
+    "watch": "esbuild src/xwiz-client.js --bundle --format='esm' --outfile='src/xwiz-client_bundle.js' --watch",
+    "lint": "eslint src/xwiz-client.js",
+    "instrument": "istanbul instrument src/xwiz-client.js --output src/xwiz-client_instrumented.js",
     "mocha-headless": "mocha-headless-chrome -a no-sandbox -f 'mocha-test.html?data=user%3D19&oauth_token=longAlphaNum1&oauth_verifier=longAplhaNum2' -c test/coverage.json",
     "server": "node test/server.js &",
     "report": "istanbul report --root test/ lcov",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
     "test": "npm run server && npm run instrument && npm run browserify && npm run mocha-headless && npm run report",
-    "uglify": "uglifyjs src/twiz-client_bundle.js --compress --output src/twiz-client_bundle.js"
+    "uglify": "uglifyjs src/xwiz-client_bundle.js --compress --output src/xwiz-client_bundle.js"
   },
   "keywords": [
     "authentication",
@@ -45,10 +41,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/gits2501/twiz-client.git"
+    "url": "https://github.com/regits2501/xwiz-client.git"
   },
   "bugs": {
-    "url": "https://github.com/gits2501/twiz-client/issues"
+    "url": "https://github.com/regits2501/xwiz-client/issues"
   },
   "author": {
     "name": "gits2501",

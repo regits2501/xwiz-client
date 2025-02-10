@@ -1,4 +1,4 @@
-import { CustomError, formEncode } from "../../twiz-client-utils/src/utils";
+import { CustomError, formEncode } from "../../Utils/src/utils";
 
 /**
  * Creates options for a request we send to twiz-server
