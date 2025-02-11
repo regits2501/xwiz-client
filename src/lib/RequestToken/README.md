@@ -1,2 +1,0 @@
-# twiz-client-requesttoken [![Build Status](https://travis-ci.org/gits2501/twiz-client-requesttoken.svg?branch=master)](https://travis-ci.org/gits2501/twiz-client-requesttoken) [![Coverage Status](https://coveralls.io/repos/github/gits2501/twiz-client-requesttoken/badge.svg?branch=master)](https://coveralls.io/github/gits2501/twiz-client-requesttoken?branch=master) 
-Base functionality for request token leg (step), used in [twiz-client](https://github.com/gits2501/twiz-client).

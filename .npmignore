@@ -7,5 +7,4 @@ coverage/
 test/tc_bundle.js
 *coverage*
 *.REF
-*tmp-browserify*
 *.tgz
