@@ -1,6 +1,6 @@
 {
   "name": "xwiz-client",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "X OAuth 1.0a library, gets you an access token , supports REST and STREAM apis (browser part)",
   "main": "src/xwiz-client_bundle.js",
   "dependencies": {
